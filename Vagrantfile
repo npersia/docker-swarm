@@ -12,10 +12,13 @@ SCRIPT
 
 
 $manager_script = <<SCRIPT
+echo -e "{\n    "insecure-registries" : ["10.100.199.199:5000"]\n}" > /tmp/daemon.json
+sudo mv /tmp/daemon.json /etc/docker
 echo Swarm Init...
 docker swarm init --listen-addr 10.100.199.200:2377 --advertise-addr 10.100.199.200:2377
 docker swarm join-token --quiet worker > /vagrant/worker_token
 sudo docker run -it -d -p 5151:8080 -v /var/run/docker.sock:/var/run/docker.sock dockersamples/visualizer
+sudo docker run -d -p 9000:9000 -v /var/run/docker.sock:/var/run/docker.sock -v portainer_data:/data portainer/portainer
 SCRIPT
 
 $worker_script = <<SCRIPT
@@ -49,6 +52,7 @@ Vagrant.configure('2') do |config|
     manager.vm.box_check_update = true
     manager.vm.network :private_network, ip: "10.100.199.200"
     manager.vm.network :forwarded_port, guest: 8080, host: 8080
+    manager.vm.network :forwarded_port, guest: 9000, host: 9000
     manager.vm.network :forwarded_port, guest: 5151, host: 5151
     manager.vm.hostname = "manager"
     manager.vm.synced_folder ".", "/vagrant"
