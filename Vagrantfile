@@ -4,11 +4,18 @@ curl -sSL https://get.docker.com/ | sh
 usermod -aG docker ubuntu
 SCRIPT
 
+$registry_script = <<SCRIPT
+docker pull registry:2
+docker run -d -p 5000:5000 registry:2
+SCRIPT
+
+
+
 $manager_script = <<SCRIPT
 echo Swarm Init...
 docker swarm init --listen-addr 10.100.199.200:2377 --advertise-addr 10.100.199.200:2377
 docker swarm join-token --quiet worker > /vagrant/worker_token
-sudo docker run -it -d -p 5000:8080 -v /var/run/docker.sock:/var/run/docker.sock dockersamples/visualizer
+sudo docker run -it -d -p 5151:8080 -v /var/run/docker.sock:/var/run/docker.sock dockersamples/visualizer
 SCRIPT
 
 $worker_script = <<SCRIPT
@@ -20,12 +27,29 @@ Vagrant.configure('2') do |config|
 
   vm_box = 'ubuntu/xenial64'
 
+
+
+  config.vm.define "registry "do |registry|
+    registry.vm.box = vm_box
+    registry.vm.box_check_update = true
+    registry.vm.network :private_network, ip: "10.100.199.199"
+    registry.vm.network :forwarded_port, guest: 5000, host: 5000
+    registry.vm.hostname = "registry"
+    registry.vm.synced_folder ".", "/vagrant"
+    registry.vm.provision "shell", inline: $install_docker_script, privileged: true
+    registry.vm.provision "shell", inline: $registry_script, privileged: true
+    registry.vm.provider "virtualbox" do |vb|
+      vb.name = "registry"
+      vb.memory = "512"
+    end
+  end
+
   config.vm.define :manager, primary: true  do |manager|
     manager.vm.box = vm_box
     manager.vm.box_check_update = true
     manager.vm.network :private_network, ip: "10.100.199.200"
     manager.vm.network :forwarded_port, guest: 8080, host: 8080
-    manager.vm.network :forwarded_port, guest: 5000, host: 5000
+    manager.vm.network :forwarded_port, guest: 5151, host: 5151
     manager.vm.hostname = "manager"
     manager.vm.synced_folder ".", "/vagrant"
     manager.vm.provision "shell", inline: $install_docker_script, privileged: true
@@ -36,7 +60,7 @@ Vagrant.configure('2') do |config|
     end
   end
 
-  (1..2).each do |i|
+  (1..1).each do |i|
     config.vm.define "worker0#{i}" do |worker|
       worker.vm.box = vm_box
       worker.vm.box_check_update = true
