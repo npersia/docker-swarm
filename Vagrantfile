@@ -8,7 +8,7 @@ $manager_script = <<SCRIPT
 echo Swarm Init...
 docker swarm init --listen-addr 10.100.199.200:2377 --advertise-addr 10.100.199.200:2377
 docker swarm join-token --quiet worker > /vagrant/worker_token
-docker run -ti -d -p 5000:5000 -e HOST=localhost -e PORT=5000 -v /var/run/docker.sock:/var/run/docker.sock manomarks/visualizer
+sudo docker run -it -d -p 5000:8080 -v /var/run/docker.sock:/var/run/docker.sock dockersamples/visualizer
 SCRIPT
 
 $worker_script = <<SCRIPT
@@ -36,7 +36,7 @@ Vagrant.configure('2') do |config|
     end
   end
 
-  (1..3).each do |i|
+  (1..2).each do |i|
     config.vm.define "worker0#{i}" do |worker|
       worker.vm.box = vm_box
       worker.vm.box_check_update = true
