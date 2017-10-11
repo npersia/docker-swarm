@@ -12,7 +12,7 @@ SCRIPT
 
 
 $manager_script = <<SCRIPT
-echo -e "{\n    "insecure-registries" : ["10.100.199.199:5000"]\n}" > /tmp/daemon.json
+echo -e "{\n    \"insecure-registries\" : [\"10.100.199.199:5000\"]\n}\" > /tmp/daemon.json
 sudo mv /tmp/daemon.json /etc/docker
 echo Swarm Init...
 docker swarm init --listen-addr 10.100.199.200:2377 --advertise-addr 10.100.199.200:2377
