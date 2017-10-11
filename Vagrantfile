@@ -16,6 +16,10 @@ sudo docker run -d -p 9000:9000 -v /var/run/docker.sock:/var/run/docker.sock -v 
 SCRIPT
 
 $worker_script = <<SCRIPT
+echo "10.100.199.199 registry" | sudo tee -a /etc/hosts
+echo -e '{\n    "insecure-registries" : ["10.100.199.199:5000","registry:5000"]\n}' > /tmp/daemon.json
+sudo mv /tmp/daemon.json /etc/docker
+sudo systemctl restart docker
 echo Swarm Join...
 docker swarm join --token $(cat /vagrant/worker_token) 10.100.199.200:2377
 SCRIPT
@@ -30,7 +34,6 @@ Vagrant.configure('2') do |config|
     registry.vm.box = vm_box
     registry.vm.network :private_network, ip: "10.100.199.199"
     registry.vm.network :forwarded_port, guest: 5000, host: 5000
-    registry.ssh.password = "vagrant"
     registry.vm.hostname = "registry"
     registry.vm.synced_folder ".", "/vagrant"
     registry.vm.provision "shell", inline: $registry_script, privileged: true
