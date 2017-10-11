@@ -4,7 +4,8 @@ docker run -d -p 5000:5000 registry:2
 SCRIPT
 
 $manager_script = <<SCRIPT
-echo -e '{\n    "insecure-registries" : ["10.100.199.199:5000"]\n}' > /tmp/daemon.json
+echo "10.100.199.199 registry" | sudo tee -a /etc/hosts
+echo -e '{\n    "insecure-registries" : ["10.100.199.199:5000","registry:5000"]\n}' > /tmp/daemon.json
 sudo mv /tmp/daemon.json /etc/docker
 sudo systemctl restart docker
 echo Swarm Init...

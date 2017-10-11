@@ -1,0 +1,26 @@
+Preparación de la máquina virtual:
+
+- Crear el usuario Vagrant, para poder acceder a la máquina virtual por ssh, a este usuario debemos crear una relación de confianza  usando el siguiente Keypairs.
+
+useradd -m vagrant
+su - vagrant
+mkdir .ssh
+wget https://raw.githubusercontent.com/mitchellh/vagrant/master/keys/vagrant.pub -O .ssh/authorized_keys
+chmod 700 .ssh 
+chmod 600 .ssh/authorized_keys
+
+
+- Aunque Vagrant no esta pensado para usar el usuario root, a veces nos es necesario por lo que debemos cambiar la password de root a vagrant
+
+passwd root
+Indicamos que la password es vagrant
+
+
+
+- Conceder permisos al usuario vagrant para que pueda configurar la red, instalar software, montar carpetas compartidas... para ello debemos configurar visudo para que no nos solicite la password de root, cuando realicemos estas operación con el usuario vagrant.
+
+visudo
+Ahora debemos añadir la siguiente linea
+
+vagrant ALL=(ALL) NOPASSWD: ALL
+Hay que comprobar que no existe una linea indicando requiretty si existe la comentamos.
