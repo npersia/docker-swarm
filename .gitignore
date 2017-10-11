@@ -1,3 +1,4 @@
 .vagrant/
 *.log
 worker_token
+*.box
