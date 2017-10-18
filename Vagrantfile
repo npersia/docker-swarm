@@ -13,7 +13,7 @@ SCRIPT
 
 $manager_script = <<SCRIPT
 echo "10.100.199.199 registry" | sudo tee -a /etc/hosts
-echo -e '{\n    "insecure-registries" : ["registry:5000"]\n}' > /tmp/daemon.json
+echo -e '{\n    "insecure-registries" : ["registry:5000"],\n    "experimental": true\n}' > /tmp/daemon.json
 sudo mv /tmp/daemon.json /etc/docker
 sudo systemctl restart docker
 echo Swarm Init...
@@ -24,7 +24,7 @@ SCRIPT
 
 $worker_script = <<SCRIPT
 echo "10.100.199.199 registry" | sudo tee -a /etc/hosts
-echo -e '{\n    "insecure-registries" : ["registry:5000"]\n}' > /tmp/daemon.json
+echo -e '{\n    "insecure-registries" : ["registry:5000"],\n    "experimental": true\n}' > /tmp/daemon.json
 sudo mv /tmp/daemon.json /etc/docker
 sudo systemctl restart docker
 echo Swarm Join...
